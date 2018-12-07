@@ -6,6 +6,7 @@ import { InMemoryCache } from 'apollo-cache-inmemory';
 import './style.css';
 import App from './App';
 import { ApolloProvider } from 'react-apollo';
+
 //Initialize the Github API endpoint
 const GITHUB_BASE_URL = 'https://api.github.com/graphql';
 
@@ -29,6 +30,8 @@ const client = new ApolloClient({
   link: httpLink,
   cache,
 })
+
+
 
 //Render the app surrounded by the ApolloProvider which contains the apollo client
 //Apollo Provider component handles the http requests and cache.
