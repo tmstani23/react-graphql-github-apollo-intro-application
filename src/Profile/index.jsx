@@ -48,6 +48,7 @@ const Profile = () => (
                 return <ErrorMessage error={error} />
             }
             const { viewer } = data;
+           
             // If viewer data is not returned or loading state is true return loading component
             if (!viewer || loading) {
                 return <Loading />

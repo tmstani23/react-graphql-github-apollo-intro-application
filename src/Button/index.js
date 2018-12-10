@@ -11,10 +11,12 @@ const Button = ({
         className = {
         `${className} Button Button_${color}`}
         type = {type} 
-        { ...props} 
+        //props are copied from the parent component to be used in the button instance:
+        { ...props}
     >
-        {children}
-        
+        {/* Whatever jsx is placed as content within the Button Component when 
+            it is rendered is placed here as children */}
+        {children} 
     </button>
 );
 export default Button;

@@ -44,9 +44,21 @@ const RepositoryItem = ({
                         )}
                     </Mutation>
                 ) : (
-                    <span>{/* Here comes your removeStar mutation */}</span>
+                    <Mutation mutation={REMOVE_STAR_REPOSITORY} variables={{ id }}>
+                        {/* display Button component passing in removeStar mutation type */}
+                        {(removeStar, { data, loading, error }) => (
+                            // Call removeStar mutation when user clicks the button
+                            <Button
+                                className={'RepositoryItem-title-action'}
+                                onClick={removeStar}
+                            >
+                                {stargazers.totalCount} Star
+                            </Button>
+                        )}
+                    </Mutation>
                 )}
             {/* Here comes your updateSubscription mutation */}
+            {viewerSubscription ? console.log(name): null}
             </div>
         </div>
 
@@ -78,6 +90,17 @@ const RepositoryItem = ({
 const STAR_REPOSITORY = gql`
     mutation($id: ID!) {
         addStar(input: {starrableId: $id}) {
+            starrable {
+                id
+                viewerHasStarred
+            }
+        }
+    }
+`;
+//GQL mutation that adds a star to an input repository
+const REMOVE_STAR_REPOSITORY = gql`
+    mutation($id: ID!) {
+        removeStar(input: {starrableId: $id}) {
             starrable {
                 id
                 viewerHasStarred
