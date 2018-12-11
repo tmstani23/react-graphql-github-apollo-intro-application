@@ -1,9 +1,58 @@
 import React from 'react';
 import Link from '../../Link';
+import REPOSITORY_FRAGMENT from '../fragments';
 import Button from '../../Button';
 import gql from 'graphql-tag';
 import '../style.css';
 import {Mutation} from 'react-apollo';
+
+//Function to handle updating the cache when a star is added.
+const updateAddStar = (
+    client,
+    { data: { addStar: { starrable: { id } } } },
+) => {
+    const repository = client.readFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+    });
+    const totalCount = repository.stargazers.totalCount + 1;
+    
+    client.writeFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+        data: {
+            ...repository,
+            stargazers: {
+                ...repository.stargazers,
+                totalCount,
+            },
+        },
+    });
+};
+
+//Function to handle updating the cache when a star is removed.
+const updateRemoveStar = (
+    client,
+    { data: { removeStar: { starrable: { id } } } },
+) => {
+    const repository = client.readFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+    });
+    const totalCount = repository.stargazers.totalCount - 1;
+    
+    client.writeFragment({
+        id: `Repository:${id}`,
+        fragment: REPOSITORY_FRAGMENT,
+        data: {
+            ...repository,
+            stargazers: {
+                ...repository.stargazers,
+                totalCount,
+            },
+        },
+    });
+};
 
 //Repository item component uses destructuring on the passed in repository data object
     //and displays specific repository data.
@@ -31,7 +80,11 @@ const RepositoryItem = ({
                     // call mutation component function passing in the gql star repository mutation 
                         // and id variable from the apollo client cache
                         // id and other data variables are available from the previous query
-                    <Mutation mutation={STAR_REPOSITORY} variables={{ id }}>
+                    <Mutation 
+                        mutation={STAR_REPOSITORY} 
+                        variables={{ id }}
+                        update={updateAddStar}
+                    >
                         {/* display Button component passing in addStar mutation type */}
                         {(addStar, { data, loading, error }) => (
                             // Call addStar mutation when user clicks the button
@@ -44,7 +97,11 @@ const RepositoryItem = ({
                         )}
                     </Mutation>
                 ) : (
-                    <Mutation mutation={REMOVE_STAR_REPOSITORY} variables={{ id }}>
+                    <Mutation 
+                        mutation={REMOVE_STAR_REPOSITORY} 
+                        variables={{ id }}
+                        update={updateRemoveStar}
+                    >
                         {/* display Button component passing in removeStar mutation type */}
                         {(removeStar, { data, loading, error }) => (
                             // Call removeStar mutation when user clicks the button
@@ -57,8 +114,7 @@ const RepositoryItem = ({
                         )}
                     </Mutation>
                 )}
-            {/* Here comes your updateSubscription mutation */}
-            {viewerSubscription ? console.log(name): null}
+                
             </div>
         </div>
 

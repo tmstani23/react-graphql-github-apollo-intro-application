@@ -2,7 +2,7 @@ import React from 'react';
 import gql from 'graphql-tag';
 import { Query } from 'react-apollo';
 import Loading from '../Loading';
-import RepositoryList from '../Repository';
+import RepositoryList, { REPOSITORY_FRAGMENT } from '../Repository';
 import ErrorMessage from '../Error';
 
 //GQL query that defines a query string using gql tag to be passed into the apollo client.
@@ -11,32 +11,15 @@ const GET_REPOSITORIES_OF_CURRENT_USER = gql`
     {
         viewer {
             repositories(first: 5, orderBy: {direction: DESC, field: STARGAZERS}) {
-            edges {
-                node {
-                    id
-                    name
-                    url
-                    descriptionHTML
-                    primaryLanguage {
-                        name
-                    }
-                    owner {
-                        login
-                        url
-                    }
-                    stargazers {
-                        totalCount
-                    }
-                    viewerHasStarred
-                    watchers {
-                        totalCount
-                    }
-                    viewerSubscription
+                edges {
+                    node {
+                        ...repository
                     }
                 }
             }
         }
-    }  
+    }
+    ${REPOSITORY_FRAGMENT}  
 `
 //Profile component used for defining the query and displaying repository component
 const Profile = () => (
