@@ -16,6 +16,7 @@ const VIEWER_SUBSCRIPTIONS = {
 const isWatch = viewerSubscription =>
     viewerSubscription === VIEWER_SUBSCRIPTIONS.SUBSCRIBED;
 
+    
 //Function that handles updating the watch/unwatch status in the Apollo client cache
 const updateWatch = (
     // input apollo client and data segment to be modified in the cache
@@ -29,6 +30,7 @@ const updateWatch = (
     },
 ) => {
     // Read the fragment from the client using subscribable id and fragment:
+    //The query fragment contains all the relevent data from the GH api taken from the apollo cache:
     const repository = client.readFragment({
         id: `Repository:${id}`,
         fragment: REPOSITORY_FRAGMENT,
@@ -140,6 +142,19 @@ const RepositoryItem = ({
                             ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
                             : VIEWER_SUBSCRIPTIONS.SUBSCRIBED,
                     }}
+                    //Add optimistic response for subscribed status
+                    optimisticResponse={{
+                        updateSubscription: {
+                            __typename: 'Mutation',
+                            subscribable: {
+                                __typename: 'Repository',
+                                id,
+                                viewerSubscription: isWatch(viewerSubscription)
+                                    ? VIEWER_SUBSCRIPTIONS.UNSUBSCRIBED
+                                    : VIEWER_SUBSCRIPTIONS.SUBSCRIBED
+                            }
+                        }
+                    }}
                     // Call updateWatch function to update the apollo cache with the new fragment
                     update={updateWatch}
                 >
@@ -165,6 +180,16 @@ const RepositoryItem = ({
                     <Mutation 
                         mutation={STAR_REPOSITORY} 
                         variables={{ id }}
+                        optimisticResponse={{
+                            addStar: {
+                                __typename: 'Mutation',
+                                starrable: {
+                                    __typename: 'Repository',
+                                    id,
+                                    viewerHasStarred: !viewerHasStarred,
+                                }
+                            }
+                        }}
                         update={updateAddStar}
                     >
                         {/* display Button component passing in addStar mutation type */}
@@ -182,6 +207,16 @@ const RepositoryItem = ({
                     <Mutation 
                         mutation={REMOVE_STAR_REPOSITORY} 
                         variables={{ id }}
+                        optimisticResponse={{
+                            removeStar: {
+                                __typename: 'Mutation',
+                                starrable: {
+                                    __typename: 'Repository',
+                                    id,
+                                    viewerHasStarred: !viewerHasStarred,
+                                }
+                            }
+                        }}
                         update={updateRemoveStar}
                     >
                         {/* display Button component passing in removeStar mutation type */}
