@@ -7,9 +7,9 @@ import ErrorMessage from '../Error';
 
 // GQL github organization query returning organization and first five repositories
 const GET_REPOSITORIES_OF_ORGANIZATION = gql`
-    query($organizationName: String!) {
+    query($organizationName: String! $cursor: String) {
         organization(login: $organizationName) {
-            repositories(first: 5) {
+            repositories(first: 5, after: $cursor) {
                 edges {
                     node {
                         ...repository
@@ -51,6 +51,7 @@ const Organization = ({organizationName}) => (
                     loading={loading}
                     repositories={organization.repositories}
                     fetchMore={fetchMore}
+                    entry={'organization'}
                 />
             )
         }}

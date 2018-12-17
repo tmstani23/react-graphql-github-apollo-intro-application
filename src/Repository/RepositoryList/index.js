@@ -4,31 +4,9 @@ import '../style.css';
 import React, { Fragment } from 'react';
 import FetchMore from '../../FetchMore';
 
-//Function that takes the previous query result and merges it with the query returned in the FetchMore component.
-const updateQuery = (previousResult, {fetchMoreResult}) => {
-    if(!fetchMoreResult) {
-        return previousResult;
-    }
-    // The merged object is first constructed by copying the base and nested viewer object from the previous result nested objects
-    return {
-        ...previousResult,
-            viewer: {
-                ...previousResult.viewer,
-                // repositories objects from the previous result and the fetch more result are merged
-                repositories: {
-                    ...previousResult.viewer.repositories,
-                    ...fetchMoreResult.viewer.repositories,
-                    //Edges arrays are merged.
-                    edges: [
-                        ...previousResult.viewer.repositories.edges,
-                        ...fetchMoreResult.viewer.repositories.edges,
-                    ],
-                },
-            },
-    }           
-};
+
     
-const RepositoryList = ({ repositories, loading, fetchMore }) => (
+const RepositoryList = ({ repositories, loading, fetchMore, entry }) => (
     <Fragment> 
         {/* Loop through all the repositories and create a div for each repository */}
         {repositories.edges.map(({ node }) => (
@@ -48,13 +26,55 @@ const RepositoryList = ({ repositories, loading, fetchMore }) => (
             variables={{
                 cursor: repositories.pageInfo.endCursor
             }}
-            updateQuery={updateQuery}
+            updateQuery={getUpdateQuery(entry)}
             fetchMore={fetchMore}
         >
             Repositories
         </FetchMore>
     </Fragment>
 );
+
+const getUpdateQuery = entry => (
+    previousResult,
+    {fetchMoreResult},
+) => {
+    if (!fetchMoreResult) {
+        return previousResult;
+    }
+
+    let testReturn = {
+        ...previousResult,
+        [entry]: {
+            ...previousResult[entry],
+            repositories: {
+                ...previousResult[entry].repositories,
+                ...fetchMoreResult[entry].repositories,
+                edges: [
+                    ...previousResult[entry].repositories.edges,
+                    ...fetchMoreResult[entry].repositories.edges,
+                ]
+            }
+        }
+    }
+
+console.log(testReturn)
+    // Return a merged object that merges repositories and edges fields of the previous result with the current result once fetchMore mutation is run.
+    // The return object uses js computed property names to provide dynamic properties at the input entry name
+    return {
+        ...previousResult,
+        [entry]: {
+            ...previousResult[entry],
+            repositories: {
+                ...previousResult[entry].repositories,
+                ...fetchMoreResult[entry].repositories,
+                edges: [
+                    ...previousResult[entry].repositories.edges,
+                    ...fetchMoreResult[entry].repositories.edges,
+                ]
+            }
+        }
+    }
+}
     
 
     

@@ -2,7 +2,7 @@ import React, { Component } from 'react';
 import Profile from '../Profile';
 import Organization from '../Organization';
 import { BrowserRouter as Router, Route } from 'react-router-dom';
-import Navigation from '../App/Navigation'
+import Navigation from './Navigation'
 import * as routes from '../constants/routes';
 import './style.css';
 
@@ -20,9 +20,9 @@ class App extends Component {
               exact
               path={routes.ORGANIZATION}
               component={() => (
-                <div>
+                <div className="App-content_large-header">
                   <Organization 
-                    organization={'the-road-to-learn-react'}
+                    organizationName={'the-road-to-learn-react'}
                   />  
                 </div>
               )}

@@ -34,6 +34,7 @@ const Profile = () => (
     >
         {/* Display repository or loading component depending on returned data state */}
         {({ data, loading, error, fetchMore }) => {
+            
             if(error) {
                 return <ErrorMessage error={error} />
             }
@@ -44,11 +45,14 @@ const Profile = () => (
                 return <Loading />
             }
             //Else display Repository list component passing down the viewer repository data.
-            return <RepositoryList 
-                loading={loading}
-                repositories={viewer.repositories} 
-                fetchMore={fetchMore} 
-            />
+            return (
+                <RepositoryList 
+                    loading={loading}
+                    repositories={viewer.repositories} 
+                    fetchMore={fetchMore} 
+                    entry={'viewer'}
+                />
+            )
         }}
     </Query>
 );
