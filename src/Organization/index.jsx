@@ -24,7 +24,7 @@ const GET_REPOSITORIES_OF_ORGANIZATION = gql`
     }
     ${REPOSITORY_FRAGMENT}
 `;
-
+// Organization component handles the gql mutation query, response validation and displaying the repository list.
 const Organization = ({organizationName}) => (
     <Query
         query={GET_REPOSITORIES_OF_ORGANIZATION}
@@ -46,13 +46,15 @@ const Organization = ({organizationName}) => (
                 return <Loading />;
             }
             // Else return the repository list
+            console.log(organization, "mutation returned - organization component")
             return (
+                // Return repository list component with pagination function, repo information, entry field and repository data
                 <RepositoryList
                     loading={loading}
                     repositories={organization.repositories}
                     fetchMore={fetchMore}
                     entry={'organization'}
-                />
+                    />
             )
         }}
 

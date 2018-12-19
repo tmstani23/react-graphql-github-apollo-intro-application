@@ -13,6 +13,11 @@ const RepositoryList = ({ repositories, loading, fetchMore, entry }) => (
             <div key={node.id} className="RepositoryItem">
                 {/* Call the RepoItem component passing in all node information for each repo */}
                 <RepositoryItem {...node} />
+
+                <Issues
+                    repositoryName={node.name}
+                    repositoryOwner={node.owner.login}
+                />
             </div>
         ))};
         {/* Component to handle fetching more repositories.
