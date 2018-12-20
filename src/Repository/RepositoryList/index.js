@@ -3,6 +3,7 @@ import RepositoryItem from '../RepositoryItem';
 import '../style.css';
 import React, { Fragment } from 'react';
 import FetchMore from '../../FetchMore';
+import Issues from '../../Issue';
 
 
     

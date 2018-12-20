@@ -14,3 +14,5 @@ const IssueItem = ({ issue }) => (
     </div>  
     
 )
+
+export default IssueItem;
