@@ -46,7 +46,6 @@ const Organization = ({organizationName}) => (
                 return <Loading />;
             }
             // Else return the repository list
-            console.log(organization, "mutation returned - organization component")
             return (
                 // Return repository list component with pagination function, repo information, entry field and repository data
                 <RepositoryList

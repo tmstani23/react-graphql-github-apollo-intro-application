@@ -1,5 +1,5 @@
 import React from 'react';
-import { Query } from 'react-apollo';
+import { Query, ApolloConsumer } from 'react-apollo';
 import './style.css';
 import gql from 'graphql-tag';
 import IssueItem from '../IssueItem';
@@ -55,7 +55,8 @@ const TRANSITION_STATE = {
     [ISSUE_STATES.OPEN]: ISSUE_STATES.CLOSED,
     [ISSUE_STATES.CLOSED]: ISSUE_STATES.NONE, 
 }
-
+// Query object which updates the returned issues by merging the previous result, from the cache, with the current result
+    // and returning the object.
 const updateQuery = (previousResult, { fetchMoreResult }) => {
     if (!fetchMoreResult) {
       return previousResult;
@@ -90,14 +91,15 @@ const Issues =({
     
             <div className="Issues">
                 {/* Display a button that updates to the next issue state on click */}
-                <ButtonUnobtrusive
-                    onClick={() =>
-                        onChangeIssueState(TRANSITION_STATE[issueState])
-                    }
+                <IssueFilter
+                    repositoryOwner={repositoryOwner}
+                    repositoryName={repositoryName}
+                    issueState={issueState}
+                    onChangeIssueState={onChangeIssueState}
                 >
                     {/* Display Transition state label */}
                     {TRANSITION_LABELS[issueState]}
-                </ButtonUnobtrusive>
+                </IssueFilter>
 
                  {/* Check if issueState exists and display query component */}
                 {isShow(issueState) && (
@@ -109,7 +111,8 @@ const Issues =({
                             repositoryName,
                             issueState,
                         }}
-                    >
+                    >   
+                        
                         {({data, loading, error, fetchMore}) => {
                             if(error) {
                                 return <ErrorMessage error={error} />
@@ -139,7 +142,55 @@ const Issues =({
             </div>
         )
 
+const prefetchIssues = (
+    client,
+    repositoryOwner,
+    repositoryName,
+    issueState,
+) => {
+    // Save next issue state as a variable because when prefetching issues issuestate = NONE
+    const nextIssueState = TRANSITION_STATE[issueState]
+    // if issue state is NONE perform prefetch issue query.  Data is cached within the apollo client
+    if(isShow(nextIssueState)) {
+        client.query({
+            query: GET_ISSUES_OF_REPOSITORY,
+            variables: {
+               repositoryOwner,
+               repositoryName,
+               issueState: nextIssueState, 
+            },
+        });
+    }
+};
+
+const IssueFilter = ({
+    issueState, 
+    onChangeIssueState,
+    repositoryName,
+    repositoryOwner,
+}) => (
+    // ApolloConsumer component allows access to the Apollo client and the original prefetched data query
+    <ApolloConsumer>
+        {client => (
+            <ButtonUnobtrusive
+            
+            onClick ={() => onChangeIssueState(TRANSITION_STATE[issueState])}
+            // perform prefetch query on mouseover
+            onMouseOver={() => 
+                prefetchIssues(
+                    client,
+                    repositoryOwner,
+                    repositoryName,
+                    issueState,
+                    )
+                }
+            >
+                {TRANSITION_LABELS[issueState]}
+            </ButtonUnobtrusive>
+        )}
+    </ApolloConsumer>
     
+)    
     
 // Component that displays an issue item component within a separate div for each issue
 const IssueList = ({
@@ -154,6 +205,7 @@ const IssueList = ({
         {issues.edges.map(({node}) => (
             <IssueItem key={node.id} issue={node} />
         ))}
+        {/* Fetchmore component performs a new query and returns updated result elements */}
         <FetchMore
             loading={loading}
             hasNextPage={issues.pageInfo.hasNextPage}
@@ -165,7 +217,7 @@ const IssueList = ({
             }}
             
             fetchMore={fetchMore}
-            updateQuery={updateQuery}
+            updateQuery={updateQuery} // The updateQuery function is passed to merge the previous result with the new query result from the fetchMore function
         >
 
         </FetchMore>
@@ -176,6 +228,7 @@ const IssueList = ({
 // first argument is the property name in the local state, 
 // the second argument is the handler to change the property in the local state, 
 // and the third argument is the initial state for that property.
+// withState captures the state and allows it to be used by high order stateless components.
 // Also the Issues component is exported
 export default withState(
     'issueState',
