@@ -1,6 +1,9 @@
 import React from 'react';
 import Link from '../../Link';
 import './style.css';
+import Comments from '../../Comments'
+import {withState} from 'recompose';
+
 
 const IssueItem = ({ issue }) => (
     <div className="IssueItem">
@@ -13,9 +16,14 @@ const IssueItem = ({ issue }) => (
             This is to avoid cross site scripting attacks which might inject unexpected code to be executed.
             Here the issue body text is displayed. */}
             <div dangerouslySetInnerHTML={{__html: issue.bodyHTML}} />
+            <Comments issueId={issue.id}/>
         </div>
     </div>  
     
 )
 
-export default IssueItem;
+export default withState(
+    'issueItemState',
+    'IssueItem',
+    'no state yet',
+ ) (IssueItem);

@@ -9,6 +9,7 @@ import {ButtonUnobtrusive} from '../../Button';
 import { withState } from 'recompose';
 import FetchMore from '../../FetchMore';
 
+
 // GQL get issues query to the github api
 const GET_ISSUES_OF_REPOSITORY = gql`
     query(
@@ -135,6 +136,8 @@ const Issues =({
                                 fetchMore={fetchMore}
                             
                                 />
+                                
+
                             )
                         }}
                     </Query>
