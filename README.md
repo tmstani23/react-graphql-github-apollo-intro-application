@@ -8,3 +8,7 @@ A github viewer and issue tracker.  There are two pages Profile and Organization
 GraphQl, Github-Api, React, React-Router, Apollo Client
 
 ### Attributions to Robin Wieruch's book the Road to GraphQL for explanation, inspiration and guidance on this project.
+
+## Screenshots:
+![Alt text](https://raw.githubusercontent.com/tmstani23/react-graphql-github-apollo-intro-application/master/ss1.png)
+![Alt text](https://raw.githubusercontent.com/tmstani23/react-graphql-github-apollo-intro-application/master/ss2.png)
