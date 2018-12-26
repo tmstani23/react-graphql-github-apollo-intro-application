@@ -8,6 +8,7 @@ import ErrorMessage from '../../Error';
 import FetchMore from '../../FetchMore';
 import './style.css';
 
+//Graphql query to get first 5 comments from each issue
 const GET_COMMENTS_OF_ISSUE = gql`
   query(
     $repositoryOwner: String!
@@ -37,7 +38,7 @@ const GET_COMMENTS_OF_ISSUE = gql`
     }
   }
 `;
-
+// Update query by merging previous query result comments with current result
 const updateQuery = (previousResult, { fetchMoreResult }) => {
     if (!fetchMoreResult) {
       return previousResult;
@@ -62,8 +63,9 @@ const updateQuery = (previousResult, { fetchMoreResult }) => {
       },
     };
   };
-  
+  // Comments function which contains the query, error and loading components
   const Comments = ({ repositoryOwner, repositoryName, issue }) => (
+    // Apollo Query component handles making the query to the github api
     <Query
       query={GET_COMMENTS_OF_ISSUE}
       variables={{
@@ -85,6 +87,7 @@ const updateQuery = (previousResult, { fetchMoreResult }) => {
         }
   
         return (
+          // Comment list component to display the list of comments and handle pagination
           <Fragment>
             <CommentList
               comments={repository.issue.comments}
@@ -94,14 +97,14 @@ const updateQuery = (previousResult, { fetchMoreResult }) => {
               repositoryName={repositoryName}
               fetchMore={fetchMore}
             />
-  
+            {/* CommentAdd component handles adding a comment to an issue */}
             <CommentAdd issueId={repository.issue.id} />
           </Fragment>
         );
       }}
     </Query>
   );
-  
+  // CommentList component generates a list of commentItems and a fetchmore component 
   const CommentList = ({
     comments,
     loading,
@@ -111,10 +114,11 @@ const updateQuery = (previousResult, { fetchMoreResult }) => {
     fetchMore,
   }) => (
     <div className="CommentList">
+      {/* Map all the comments as a comment component */}
       {comments.edges.map(({ node }) => (
         <CommentItem key={node.id} comment={node} />
       ))}
-  
+      {/* Fetchmore handles displaying more comments on button click and updating the query */}
       <FetchMore
         loading={loading}
         hasNextPage={comments.pageInfo.hasNextPage}

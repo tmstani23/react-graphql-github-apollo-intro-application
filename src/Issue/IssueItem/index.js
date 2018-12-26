@@ -17,7 +17,6 @@ const IssueItem = ({
         <Button onClick={() => onShowComments(!isShowComments)}>
             {isShowComments ? '-' : '+'}
         </Button>
-        {/* placeholder showhide comment button */}
         <div className="Issue-Item-content">
             <h3>
                 <Link href={issue.url}>{issue.title}</Link>
@@ -27,6 +26,7 @@ const IssueItem = ({
             Here the issue body text is displayed. */}
             <div dangerouslySetInnerHTML={{__html: issue.bodyHTML}} />
             {isShowComments && (
+                // Comment component to display comments for an issue and allow a user to add a comment
                 <Comments
                     repositoryOwner={repositoryOwner}
                     repositoryName={repositoryName}
