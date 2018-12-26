@@ -7,9 +7,9 @@ import ErrorMessage from '../Error';
 
 // GQL github organization query returning organization and first five repositories
 const GET_REPOSITORIES_OF_ORGANIZATION = gql`
-    query($organizationName: String!) {
+    query($organizationName: String! $cursor: String) {
         organization(login: $organizationName) {
-            repositories(first: 5) {
+            repositories(first: 5, after: $cursor) {
                 edges {
                     node {
                         ...repository
@@ -24,7 +24,7 @@ const GET_REPOSITORIES_OF_ORGANIZATION = gql`
     }
     ${REPOSITORY_FRAGMENT}
 `;
-
+// Organization component handles the gql mutation query, response validation and displaying the repository list.
 const Organization = ({organizationName}) => (
     <Query
         query={GET_REPOSITORIES_OF_ORGANIZATION}
@@ -47,11 +47,13 @@ const Organization = ({organizationName}) => (
             }
             // Else return the repository list
             return (
+                // Return repository list component with pagination function, repo information, entry field and repository data
                 <RepositoryList
                     loading={loading}
                     repositories={organization.repositories}
                     fetchMore={fetchMore}
-                />
+                    entry={'organization'}
+                    />
             )
         }}
 
