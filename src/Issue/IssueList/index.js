@@ -90,60 +90,69 @@ const Issues =({
     onChangeIssueState,
 }) => (
     
-            <div className="Issues">
-                {/* Display a button that updates to the next issue state on click */}
-                <IssueFilter
-                    repositoryOwner={repositoryOwner}
-                    repositoryName={repositoryName}
-                    issueState={issueState}
-                    onChangeIssueState={onChangeIssueState}
-                >
-                    {/* Display Transition state label */}
-                    {TRANSITION_LABELS[issueState]}
-                </IssueFilter>
+    <div className="Issues">
+        {/* Display a button that updates to the next issue state on click */}
+        <IssueFilter
+            repositoryOwner={repositoryOwner}
+            repositoryName={repositoryName}
+            issueState={issueState}
+            onChangeIssueState={onChangeIssueState}
+        />
+            
 
-                 {/* Check if issueState exists and display query component */}
-                {isShow(issueState) && (
-                    // Perform query mutation to get Issues from the current repository
-                    <Query
-                        query={GET_ISSUES_OF_REPOSITORY}
-                        variables={{
-                            repositoryOwner,
-                            repositoryName,
-                            issueState,
-                        }}
-                    >   
-                        
-                        {({data, loading, error, fetchMore}) => {
-                            if(error) {
-                                return <ErrorMessage error={error} />
-                            }
+            {/* Check if issueState exists and display query component */}
+        {isShow(issueState) && (
+            // Perform query mutation to get Issues from the current repository
+            <Query
+                query={GET_ISSUES_OF_REPOSITORY}
+                variables={{
+                    repositoryOwner,
+                    repositoryName,
+                    issueState,
+                }}
+                notifyOnNetworkStatusChange={true}
+            >   
+                
+                {({data, loading, error, fetchMore}) => {
+                    if(error) {
+                        return <ErrorMessage error={error} />
+                    }
 
-                            const {repository} = data
+                    const {repository} = data
 
-                            if(loading && !repository) {
-                                return <Loading />
-                            }
-                            
-                            // Display Issues list with only filtered issues
-                            return (
-                                <IssueList 
-                                issues={repository.issues}
-                                loading={loading}
-                                repositoryOwner={repositoryOwner}
-                                repositoryName={repositoryName}
-                                issueState={issueState}
-                                fetchMore={fetchMore}
-                            
-                                />
-                                
+                    if(loading && !repository) {
+                        return <Loading />
+                    }
 
-                            )
-                        }}
-                    </Query>
-                )}
-            </div>
-        )
+                    const filteredRepository = {
+                        issues: {
+                            edges: repository.issues.edges.filter(
+                            issue => issue.node.state === issueState,
+                            ),
+                        },
+                        };
+            
+                    if (!filteredRepository.issues.edges.length) {
+                        return <div className="IssueList">No issues ...</div>;
+                    }
+                    
+                    // Display Issues list with only filtered issues
+                    return (
+                        <IssueList 
+                        issues={repository.issues}
+                        loading={loading}
+                        repositoryOwner={repositoryOwner}
+                        repositoryName={repositoryName}
+                        issueState={issueState}
+                        fetchMore={fetchMore}
+                    
+                        />                          
+                    )
+                }}
+            </Query>
+        )}
+    </div>
+)
 
 const prefetchIssues = (
     client,
@@ -206,7 +215,12 @@ const IssueList = ({
     }) => (
     <div className="IssueList">
         {issues.edges.map(({node}) => (
-            <IssueItem key={node.id} issue={node} />
+            <IssueItem 
+                key={node.id} 
+                issue={node}
+                repositoryOwner={repositoryOwner}
+                repositoryName={repositoryName} 
+            />
         ))}
         {/* Fetchmore component performs a new query and returns updated result elements */}
         <FetchMore
@@ -222,7 +236,7 @@ const IssueList = ({
             fetchMore={fetchMore}
             updateQuery={updateQuery} // The updateQuery function is passed to merge the previous result with the new query result from the fetchMore function
         >
-
+            Issues
         </FetchMore>
     </div>
 )
